@@ -1,22 +1,26 @@
---- 1/7 (01.png) ---
-🧵 Resumen semanal de Pulso: qué se votó en la semana del 7 al 13 de septiembre de 2026 en el Congreso.
+--- 1/8 (01.png) ---
+🧵 Santos Maraver, Agustín (Sumar) votó abstención en contra de la posición de su propio grupo, en: Acuerdo con la UNESCO para reconocer a la Fundación Tres Culturas como centro oficial.
+
+--- 2/8 (02.png) ---
+Resumen de Pulso: qué se votó en la semana del 7 al 13 de septiembre de 2026 en el Congreso.
 15 iniciativas · 23 votaciones · 10 salieron adelante.
 
---- 2/7 (02.png) ---
+--- 3/8 (03.png) ---
 De qué se habló: Justicia, Institucional y organización del Estado, Empleo y pensiones, entre otros.
 
---- 3/7 (03.png) ---
+--- 4/8 (04.png) ---
 La votación más reñida: Votación separada por puntos. — solo 2 votos de diferencia.
 
---- 4/7 (04.png) ---
+--- 5/8 (05.png) ---
 Te toca de cerca: El PP pide al Gobierno medidas concretas para abordar la crisis de vivienda
 
---- 5/7 (05.png) ---
+--- 6/8 (06.png) ---
 Te toca de cerca: VOX pide al Gobierno un plan para frenar la pérdida de poder adquisitivo de los españoles
 
---- 6/7 (06.png) ---
+--- 7/8 (07.png) ---
 Quién se salió del guion: Santos Maraver, Agustín (Sumar) votó abstención, mientras su grupo votaba no.
 
---- 7/7 (07.png) ---
+--- 8/8 (08.png) ---
 ¿Quieres el detalle completo? Cada iniciativa y cada voto, en Pulso 👇
-https://javiedeso-collab.github.io/pulso/
+#Congreso #DatosAbiertos #Transparencia #Justicia #Institucional #EmpleoYPensiones
+https://pulsoecos.github.io/pulso/
