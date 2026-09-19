@@ -190,7 +190,7 @@
   .kpi {
     background: var(--card); border: 1px solid var(--borde);
     border-radius: 999px; padding: 3px 11px 3px 9px;
-    display: inline-flex; align-items: baseline; gap: 5px; box-shadow: var(--sombra);
+    display: inline-flex; align-items: baseline; gap: 5px;
   }
   .kpi b { font-size: .88rem; font-weight: 800; letter-spacing: -.02em; }
   .kpi span { font-size: .72rem; color: var(--tinta-2); }
@@ -255,9 +255,17 @@
   .stat-grupo-cifras { display: flex; gap: 12px; font-size: .82rem; color: var(--tinta-2);
                        justify-content: flex-end; white-space: nowrap; }
 
-  .sparkline { display: flex; align-items: flex-end; gap: 2px; height: 90px; }
-  .sparkline i { flex: 1; background: var(--pulso); border-radius: 2px 2px 0 0; min-width: 2px; cursor: default; transition: background .1s; }
+  .sparkline { display: flex; align-items: flex-end; gap: 2px; height: 104px; }
+  .sparkline i {
+    flex: 1; background: var(--pulso); border-radius: 2px 2px 0 0; min-width: 2px;
+    cursor: pointer; transition: background .1s; position: relative;
+  }
   .sparkline i:hover { background: var(--tinta); }
+  .sparkline i[data-etiqueta]::after {
+    content: attr(data-etiqueta); position: absolute; bottom: 100%; left: 50%;
+    transform: translateX(-50%); margin-bottom: 3px; white-space: nowrap;
+    font-size: .72rem; font-weight: 700; color: var(--tinta-2);
+  }
   .sparkline-eje { display: flex; gap: 2px; margin-top: 4px; }
   .sparkline-eje span {
     flex: 1; min-width: 2px; text-align: center; font-size: .72rem;
@@ -308,6 +316,14 @@
   .chip:hover { border-color: var(--pulso); color: var(--tinta); }
   .chip[aria-pressed="true"] {
     background: var(--pulso); border-color: var(--pulso); color: var(--pulso-texto); font-weight: 600;
+  }
+  .badge-nuevo:not([hidden]) {
+    position: absolute; top: -2px; right: -2px; width: 9px; height: 9px;
+    border-radius: 50%; background: var(--pulso); border: 2px solid var(--card);
+  }
+  .badge-nuevo-inline:not([hidden]) {
+    margin-left: auto; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--pulso); flex: none;
   }
   .badge-filtro:not([hidden]) {
     display: inline-flex; align-items: center; justify-content: center;
@@ -436,6 +452,7 @@
   .leyenda b { color: var(--tinta); font-weight: 700; }
 
   /* ---------- etiquetas ---------- */
+  .veredicto-fila { margin: 12px 0 10px; }
   .etiquetas { display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
                margin-bottom: 13px; font-size: .78rem; }
   .et { background: var(--bg-2); color: var(--tinta-2); border-radius: 999px;
@@ -614,7 +631,6 @@
   </div>
   <select class="entes" id="entes" aria-label="Ente seleccionado">
     <option value="parlamento" selected>Parlamento Español</option>
-    <option value="vasco">Parlamento Vasco</option>
     <option value="estadisticas">📊 Estadísticas</option>
   </select>
   <div class="topbar-controles">
@@ -663,10 +679,12 @@
           <path d="M5.5 8.9v4c0 1.05 2 2.1 4.5 2.1s4.5-1.05 4.5-2.1v-4"/>
           <path d="M17.3 7.3v4.3"/>
         </svg>
+        <span class="badge-nuevo" id="badge-academia" hidden></span>
       </button>
       <div class="panel-herramienta menu-academia" id="panel-academia" hidden>
         <button class="item-academia" id="item-diccionario" type="button">
           <span class="item-emoji">📖</span> Diccionario
+          <span class="badge-nuevo-inline" id="badge-diccionario" hidden></span>
         </button>
         <button class="item-academia" id="item-pildoras" type="button" title="Próximamente" disabled>
           <span class="item-emoji">💊</span> Píldoras
@@ -717,12 +735,18 @@
         <span class="proximamente-texto">Mi Partido</span>
         <span class="proximamente-candado">🔒</span>
       </div>
+      <div class="proximamente-item" title="Próximamente">
+        <span class="proximamente-icono">🌐</span>
+        <span class="proximamente-texto">Otros parlamentos</span>
+        <span class="proximamente-candado">🔒</span>
+      </div>
     </div>
   </div>
 
   <div class="kpis" id="kpis"></div>
 
   <p class="contador" id="contador"></p>
+  <p class="stat-leyenda" id="leyenda-grupos" hidden>El color y las siglas identifican al grupo &nbsp;·&nbsp; ✓ Sí &nbsp;·&nbsp; ✕ No &nbsp;·&nbsp; – Abstención</p>
   <div id="lista"></div>
 
   <div class="suggest" id="sugerencias">
@@ -916,17 +940,35 @@ const DATOS_VASCO = {
   sesion: 101,
   puntos: [
     { numero: 1, titulo: 'Proposición de Ley de Medidas para la Normalización Lingüística, por la que se modifica la Ley 11/2022 de Empleo Público Vasco', grupo: null,
-      votaciones: [{ favor: { n: 27, grupos: 'PNV' }, contra: { n: 21, grupos: 'PSE-EE, PP, Sumar y Vox' }, abstenciones: { n: 27, grupos: 'EH Bildu' } }] },
+      votaciones: [{ favor: { n: 27, grupos: 'PNV' }, contra: { n: 21, grupos: 'PSE-EE, PP, Sumar y Vox' }, abstenciones: { n: 27, grupos: 'EH Bildu' } }],
+      explicacion_facil: 'Esta ley cambia cómo se exige saber euskera para trabajar en la administración vasca. En vez de pedir siempre el mismo nivel a rajatabla, cada puesto tendrá que justificar con datos reales cuánto euskera hace falta según el trabajo. También permite convocar plazas sin tener aún ese nivel, dando un plazo para sacárselo mientras ya se trabaja.',
+      que_cambia: 'Afecta a las más de 100.000 personas que trabajan o quieren trabajar en la administración vasca: cambia qué nivel de euskera se les pide según el puesto, y algunas podrán empezar a trabajar antes de tener ese nivel certificado.',
+      jerga: [{ termino: 'perfil lingüístico', significado: 'el nivel de euskera exigido para un puesto de trabajo público, del PL1 (más bajo) al PL4 (más alto).' }] },
     { numero: 2, titulo: 'Proposición de Ley de Regulación de los Festejos Taurinos Tradicionales de Fomento en Euskadi', grupo: null,
-      votaciones: [{ favor: { n: 47, grupos: 'PNV, PSE-EE, PP y Vox' }, contra: { n: 1, grupos: 'Sumar' }, abstenciones: { n: 27, grupos: 'EH Bildu' } }] },
+      votaciones: [{ favor: { n: 47, grupos: 'PNV, PSE-EE, PP y Vox' }, contra: { n: 1, grupos: 'Sumar' }, abstenciones: { n: 27, grupos: 'EH Bildu' } }],
+      explicacion_facil: 'Esta ley regula por primera vez los festejos populares con toros de fomento que se celebran en algunos pueblos vascos (no son corridas con muerte del animal). Fija normas de seguridad para quien participa, edades mínimas, medidas de bienestar animal y quién vigila que se cumplan.',
+      que_cambia: 'Si vives en un municipio donde se celebran estos festejos, a partir de ahora tendrán reglas fijas de seguridad y bienestar animal en toda Euskadi, no solo las que decida cada ayuntamiento.',
+      jerga: [{ termino: 'festejo taurino de fomento', significado: 'celebración popular con toros o vaquillas, sin muerte del animal, distinta de una corrida de toros clásica.' }] },
     { numero: 3, titulo: 'Proposición de Ley de medidas urgentes de simplificación y agilización de la Administración para la actividad económica sostenible', grupo: 'PNV y PSE-EE',
-      votaciones: [{ favor: { n: 39, grupos: 'PNV y PSE-EE' }, contra: { n: 36, grupos: 'EH Bildu, PP, Sumar y Vox' } }] },
+      votaciones: [{ favor: { n: 39, grupos: 'PNV y PSE-EE' }, contra: { n: 36, grupos: 'EH Bildu, PP, Sumar y Vox' } }],
+      explicacion_facil: 'Antes de tramitar una ley, el Parlamento vota primero si merece la pena estudiarla — eso es la "toma en consideración". Aquí votaron a favor de empezar a tramitar una ley para simplificar y acelerar los trámites que una empresa tiene que hacer con la administración vasca.',
+      que_cambia: 'Todavía no cambia nada directamente: es solo el primer paso para que esta ley empiece a discutirse en el Parlamento.',
+      jerga: [{ termino: 'toma en consideración', significado: 'votación previa en la que el Parlamento decide si una propuesta de ley merece empezar a tramitarse, antes de discutir su contenido artículo por artículo.' }] },
     { numero: 4, titulo: 'Moción relativa a la aplicación de la Ley 8/2022 y la exigencia de cualificaciones oficiales para el ejercicio del socorrismo acuático', grupo: 'Partido Popular Vasco',
-      votaciones: [{ favor: { n: 38, grupos: 'PNV y PSE-EE' }, contra: { n: 7, grupos: 'PP y Vox' }, abstenciones: { n: 28, grupos: 'EH Bildu y Sumar' } }] },
+      votaciones: [{ favor: { n: 38, grupos: 'PNV y PSE-EE' }, contra: { n: 7, grupos: 'PP y Vox' }, abstenciones: { n: 28, grupos: 'EH Bildu y Sumar' } }],
+      explicacion_facil: 'La propuesta original pedía exigir un título oficial concreto para trabajar de socorrista en playas y piscinas del País Vasco. No salió adelante tal cual, pero sí se aprobó una versión alternativa (una "enmienda a la totalidad") con un texto distinto sobre el mismo tema, presentada por otros dos grupos.',
+      que_cambia: 'Seguirá habiendo debate sobre qué titulación exacta se exige a los socorristas, pero según el texto que finalmente se aprobó, no el que proponía el grupo que registró la iniciativa.',
+      jerga: [{ termino: 'enmienda a la totalidad', significado: 'un texto alternativo completo que sustituye por entero a la propuesta original, en vez de corregir solo una parte.' }] },
     { numero: 5, titulo: 'Moción sobre la "ocupación" de pabellones industriales por inmigrantes en situación irregular', grupo: 'Mixto-Vox',
-      votaciones: [{ favor: { n: 1, grupos: 'Vox' }, contra: { n: 61, grupos: 'PNV, EH Bildu, PSE-EE y Sumar' }, abstenciones: { n: 6, grupos: 'PP' } }] },
+      votaciones: [{ favor: { n: 1, grupos: 'Vox' }, contra: { n: 61, grupos: 'PNV, EH Bildu, PSE-EE y Sumar' }, abstenciones: { n: 6, grupos: 'PP' } }],
+      explicacion_facil: 'El grupo Vox propuso que el Parlamento se pronunciara sobre personas migrantes en situación irregular que ocupan naves industriales vacías. La propuesta no salió adelante: la mayoría de grupos votó en contra, y tampoco prosperó una versión alternativa que planteó el PP.',
+      que_cambia: 'Al no aprobarse ni el texto original ni la alternativa, no hay ningún cambio ni mandato nuevo del Parlamento sobre este asunto.',
+      jerga: [] },
     { numero: 6, titulo: 'Proposición no de Ley sobre la implantación de un abono joven vasco de tarifa plana y cobertura integral en el transporte público', grupo: 'Partido Popular Vasco',
-      votaciones: [], resultado: 'Aprobada la enmienda de totalidad de PNV y PSE-EE', tipo: 'si' },
+      votaciones: [], resultado: 'Aprobada la enmienda de totalidad de PNV y PSE-EE', tipo: 'si',
+      explicacion_facil: 'El PP propuso crear un abono de transporte público para jóvenes con un precio fijo (tarifa plana) válido en todo el transporte público vasco. No se aprobó el texto tal y como lo planteó el PP, pero sí una versión alternativa sobre el mismo asunto presentada por PNV y PSE-EE.',
+      que_cambia: 'El abono joven que finalmente se ponga en marcha, con su precio y cobertura, dependerá del texto alternativo aprobado, no del que proponía originalmente el PP.',
+      jerga: [{ termino: 'proposición no de ley (PNL)', significado: 'una petición del Parlamento al Gobierno para que haga algo — a diferencia de una ley, no obliga por sí misma, es un mandato político.' }] },
   ],
 };
 const $ = s => document.querySelector(s);
@@ -973,6 +1015,26 @@ $('#diccionario-lista').addEventListener('click', ev => {
   requestAnimationFrame(() => destino.scrollIntoView({ behavior: 'smooth', block: 'start' }));
 });
 
+/* ---------- avisos de novedad: cosas que aún no has visto en Academia
+   Pulso. Sin cuenta de por medio: se guarda en localStorage de este
+   navegador, no por persona — es un aviso de "hay algo nuevo", no un
+   contador exacto. Pensado para poder engancharle más cosas más adelante
+   (una sección nueva, una píldora nueva...), no solo el diccionario. ---------- */
+const NOVEDAD_DICCIONARIO = 'pulso_visto_n_terminos';
+
+function actualizarNovedades() {
+  const nVistos = +(localStorage.getItem(NOVEDAD_DICCIONARIO) || 0);
+  const hayDiccionarioNuevo = meta.glosario.length > nVistos;
+  $('#badge-academia').hidden = !hayDiccionarioNuevo;
+  $('#badge-diccionario').hidden = !hayDiccionarioNuevo;
+}
+actualizarNovedades();
+
+$('#item-diccionario').addEventListener('click', () => {
+  localStorage.setItem(NOVEDAD_DICCIONARIO, String(meta.glosario.length));
+  actualizarNovedades();
+});
+
 /* ---------- selector de entes ---------- */
 let ente = 'parlamento';
 const selectorEntes = $('#entes');
@@ -1016,6 +1078,7 @@ PANELES.forEach(({ boton, panel }) => {
   });
 });
 document.addEventListener('click', () => cerrarPaneles());
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') cerrarPaneles(); });
 PANELES.forEach(({ panel }) => panel.addEventListener('click', ev => ev.stopPropagation()));
 
 /* ---------- utilidades ---------- */
@@ -1427,8 +1490,8 @@ function pintarExpediente(e, i, claseResalte) {
     </div>
     <p class="resumen">${esc(e.resumen)}</p>
     ${pintarBarra(principal.totales)}
+    <div class="veredicto-fila">${veredicto(e.resultado)}</div>
     <div class="etiquetas">
-      ${veredicto(e.resultado)}
       <span class="et tema">${esc(e.tema)}</span>
       <span class="et">${esc(e.instrumento)}</span>
       <span class="et">${esc(e.ambito)}</span>
@@ -1641,7 +1704,37 @@ function pintarPuntoVasco(p) {
     </div>
     ${p.grupo ? `<div class="etiquetas"><span class="et">${esc(p.grupo)}</span></div>` : ''}
     ${cuerpo}
+    <div class="acciones">
+      <button class="btn-facil" data-facil-vasco="${p.numero}">🤔 No te entiendo</button>
+    </div>
   </article>`;
+}
+
+function abrirFacilVasco(p) {
+  $('#m-titulo').textContent = p.titulo;
+  const jerga = (p.jerga || []).length ? `
+    <section>
+      <h4>Palabras raras, traducidas</h4>
+      <dl>${p.jerga.map(j =>
+        `<dt>${esc(j.termino)}</dt><dd>${esc(j.significado)}</dd>`).join('')}</dl>
+    </section>` : '';
+  const v = p.votaciones[0];
+  $('#m-cuerpo').innerHTML = `
+    <section>
+      <h4>¿De qué va esto?</h4>
+      <p>${esc(p.explicacion_facil)}</p>
+    </section>
+    ${p.que_cambia ? `
+    <section>
+      <h4>¿Y a mí en qué me afecta?</h4>
+      <p class="destacado">${esc(p.que_cambia)}</p>
+    </section>` : ''}
+    ${jerga}
+    <div class="resultado-final">
+      ${v ? veredictoVoto(v) : `<span class="veredicto ${p.tipo}">${p.tipo === 'si' ? '✅' : '🚫'} ${esc(p.resultado)}</span>`}
+      <span>Votado el ${fechaEs(DATOS_VASCO.fecha)} en el Pleno del Parlamento Vasco.</span>
+    </div>`;
+  modal.showModal();
 }
 
 function pintarVasco() {
@@ -1695,9 +1788,13 @@ function pintarEstadisticas() {
   };
   const pctsAsis = est.asistencia_mensual.map(m => m.pct);
   const pisoAsis = Math.max(0, Math.min(...pctsAsis) - 5);
-  const sparkline = est.asistencia_mensual.map(m => {
-    const alto = Math.max(6, 100 * (m.pct - pisoAsis) / (100 - pisoAsis));
-    return `<i style="height:${alto}%" data-mes="${esc(mesLegible(m.mes))}" data-pct="${m.pct}"></i>`;
+  const idxMaxAsis = pctsAsis.indexOf(Math.max(...pctsAsis));
+  const idxMinAsis = pctsAsis.indexOf(Math.min(...pctsAsis));
+  const sparkline = est.asistencia_mensual.map((m, i) => {
+    // Se deja un 15% de hueco arriba para la etiqueta del mes con más/menos asistencia.
+    const alto = Math.max(6, 100 * (m.pct - pisoAsis) / (100 - pisoAsis)) * .85;
+    const etiqueta = (i === idxMaxAsis || i === idxMinAsis) ? ` data-etiqueta="${m.pct}%"` : '';
+    return `<i style="height:${alto}%" data-mes="${esc(mesLegible(m.mes))}" data-pct="${m.pct}"${etiqueta}></i>`;
   }).join('');
   const ejeSparkline = est.asistencia_mensual.map(m => {
     const [anio, mesNum] = m.mes.split('-');
@@ -1734,7 +1831,7 @@ function pintarEstadisticas() {
 
     <section class="stats-bloque">
       <h2 class="stats-titulo">Evolución de la asistencia</h2>
-      <p class="ayuda-perfil">Porcentaje de diputados presentes en cada votación, por mes.</p>
+      <p class="ayuda-perfil">Porcentaje de diputados presentes en cada votación, por mes — pasa el cursor por una barra para ver el dato exacto.</p>
       <div class="sparkline" id="sparkline" data-rango="${esc(rangoAsis)}">${sparkline}</div>
       <div class="sparkline-eje">${ejeSparkline}</div>
       <p class="sparkline-valor" id="sparkline-valor">${rangoAsis}</p>
@@ -1772,6 +1869,9 @@ function pintar() {
   const esEstadisticas = ente === 'estadisticas';
   $('#bloque-buscador').style.display = (esErrenteria || esVasco || esEstadisticas) ? 'none' : '';
   $('#bloque-filtros').style.display = (esErrenteria || esVasco || esEstadisticas) ? 'none' : '';
+  // La leyenda de ✓/✕/– solo tiene sentido en la vista de Congreso: es la
+  // única que usa esos símbolos en vez de escribir "a favor"/"en contra".
+  $('#leyenda-grupos').hidden = esErrenteria || esVasco || esEstadisticas;
 
   if (esEstadisticas) {
     $('#titulo-h1').innerHTML = `Estadísticas de la <span class="marca hl">legislatura</span>`;
@@ -1801,6 +1901,8 @@ function pintar() {
 $('#lista').addEventListener('click', ev => {
   const bf = ev.target.closest('[data-facil]');
   if (bf) return abrirFacil(expedientes[+bf.dataset.facil]);
+  const bfv = ev.target.closest('[data-facil-vasco]');
+  if (bfv) return abrirFacilVasco(DATOS_VASCO.puntos.find(p => p.numero === +bfv.dataset.facilVasco));
   const bd = ev.target.closest('[data-detalle]');
   if (bd) {
     const det = $(`#det-${bd.dataset.detalle}`);
