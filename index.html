@@ -97,17 +97,19 @@
   .marca-icono {
     width: 32px; height: 32px; border-radius: 10px; background: var(--card);
     border: 1px solid var(--borde); display: grid; place-items: center; flex: none;
-    animation: latido-logo 2.4s ease-in-out infinite;
   }
-  @keyframes latido-logo {
-    0%, 100% { transform: scale(1); }
-    10% { transform: scale(1.04); }
-    20% { transform: scale(1); }
-    30% { transform: scale(1.06); }
-    45% { transform: scale(1); }
+  .marca-icono svg polyline {
+    animation: latido-color 2.4s ease-in-out infinite;
+  }
+  @keyframes latido-color {
+    0%, 8%, 100% { stroke: var(--borde); }
+    10% { stroke: #E0982F; }
+    20% { stroke: var(--borde); }
+    30% { stroke: #E0982F; }
+    45% { stroke: var(--borde); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .marca-icono { animation: none; }
+    .marca-icono svg polyline { animation: none; }
   }
   .topbar .brand svg { display: block; }
   .topbar .brand > span:last-child { font-size: 1.3rem; line-height: 1; }
