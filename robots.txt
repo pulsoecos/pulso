@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://pulsoecos.com/sitemap.xml
